@@ -1,18 +1,21 @@
 # Campus Harvest: Food Waste Management System
 
-A college project review demo built with **HTML, CSS and vanilla JavaScript only**. The UI uses CSS Grid and Flexbox. The app stores accounts, session state and project records in the browser's Local Storage.
+A college project review app built with **HTML, CSS and vanilla JavaScript**. Its responsive layout uses CSS Grid and Flexbox. Accounts, session state and project records use browser Local Storage.
 
-## Run the application
+## Open the app
 
-Open `index.html` in a modern browser. No server, package manager or build step is required.
+Open `index.html` in a modern browser. No build step or extra technology is required.
 
-## Demo sign-in
+## Demo accounts
 
-- **Admin:** `admin@campus.edu`
-- **Password:** `admin123`
-- **User:** Create a student account from the sign-in screen. Signup assigns the User role.
+Choose the account area on the sign-in page:
 
-The demo initializes example waste, inventory and surplus records on first use. Use **Reset demo data** in the browser developer console if needed:
+- **Admin:** Shravan
+- **Email:** `shravan@campus.edu`
+- **Password:** `shravan123`
+- **Consumer:** Sign up from the sign-in page. Signup only creates Consumer accounts.
+
+The demo loads sample waste, inventory and surplus records the first time it runs. To reset demo data in the browser console:
 
 ```js
 localStorage.removeItem('campusHarvest.users.v1');
@@ -23,43 +26,34 @@ location.reload();
 
 ## Modules
 
-### Admin
+### Admin module
 
-- Overview of logged waste, tracked inventory, active surplus listings and student reports
-- Add measured waste entries by category and dining location
-- Track food quantities and expiry dates, remove inventory items
-- Publish surplus listings and mark food as collected
-- Review student waste observations
+- View campus waste, inventory, available surplus and Consumer reports
+- Record food waste by type, measured weight and campus location
+- Track stock quantities and expiry dates
+- Publish safe surplus listings and mark food as collected
+- Review Consumer reports
+- Edit Consumer names and email addresses, or set a new password
 
-### User
+### Consumer module
 
-- Signup and login with role-based navigation
-- View active campus surplus and request pickup
-- Submit observations about waste sources
-- Track the status of submitted reports and pickup requests
+- Create a separate Consumer account and sign in through the Consumer area
+- Browse campus surplus and request a pickup
+- Submit observations about waste
+- Track submitted reports and pickup requests
 
-## Application flow
+## How it works
 
-`index.html` loads `styles.css` and `app.js`. JavaScript authenticates accounts from Local Storage, saves the active session, selects the Admin or User navigation from that session, and routes between modules with the URL hash. Each form validates its fields before updating shared Local Storage records.
+`index.html` loads the styles and application logic. The selected account area must match the account role during sign-in. JavaScript stores accounts and project data in Local Storage, then shows the corresponding module navigation. Admin accounts are seeded separately; public signup always creates a Consumer account.
 
-## Project review talking points
+## Project review notes
 
-- **Problem:** Kitchens and dining halls can overproduce or discard food because demand, inventory and leftovers are not tracked consistently.
-- **Business system:** Campus food service operations, including kitchen staff, administrators and student diners.
-- **Prevention focus:** Demand-informed planning, expiry checks, measurement by source and timely surplus visibility help teams spot avoidable loss.
-- **Data model:** `users`, `session`, and `data` Local Storage keys hold account, authentication and application records.
-- **Navigation:** The signed-in role controls which module links and screens the application renders.
-- **Limitations:** Local Storage is specific to one browser and is not secure for real credentials or shared multi-device use. This implementation meets the project technology constraint for a classroom demonstration, but should not be used for production authentication or sensitive personal data.
+- **Problem:** Campus kitchens and dining halls can overproduce or discard food because demand, stock and leftovers are not tracked consistently.
+- **Business system:** Campus food service operations, including administrators, dining staff and Consumers.
+- **Prevention approach:** Track waste by source, check expiry dates and make safe surplus visible for pickup.
+- **Admin authority:** The Admin can update Consumer profile details and reset Consumer passwords.
+- **Local Storage keys:** `campusHarvest.users.v1`, `campusHarvest.session.v1`, and `campusHarvest.data.v1`.
 
-## GitHub submission
+## Demo limitation
 
-Create a GitHub repository, then run these commands from this folder:
-
-```sh
-git init
-git add index.html styles.css app.js README.md
-git commit -m "Build campus food waste management system"
-git branch -M main
-git remote add origin YOUR_GITHUB_REPOSITORY_URL
-git push -u origin main
-```
+Local Storage is specific to one browser and does not synchronize data across devices. This classroom implementation stores demo passwords in the browser and does not provide production security. Use fictional details only.

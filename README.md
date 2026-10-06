@@ -36,17 +36,20 @@ location.reload();
 - Publish safe surplus listings and mark food as collected
 - Review User reports
 - Edit User names and email addresses, or set a new password
+- Create additional Admin accounts from **Manage accounts**
+- Keep waste entries private by default, then share or hide individual entries for Users
 
 ### User module
 
 - Create a separate User account and sign in through the User area
+- View only the waste entries an Admin explicitly shares in **Campus waste**
 - Browse campus surplus and request a pickup
 - Submit observations about waste
 - Track submitted reports and pickup requests
 
 ## How it works
 
-`index.html` loads the styles and application logic. The selected account type must match the account role during sign-in. JavaScript stores accounts and project data in Local Storage, then shows the corresponding module navigation. Admin accounts are seeded separately; public signup always creates a User account.
+`index.html` loads the styles and application logic. The selected account type must match the account role during sign-in. JavaScript stores accounts and project data in Local Storage, then shows the corresponding module navigation. Public signup always creates a User account; signed-in Admins can create additional Admin accounts from **Manage accounts**. Waste entries are private to Admins by default. Users only see entries that an Admin explicitly shares, and an Admin can hide a previously shared entry at any time.
 
 ## Project review notes
 
@@ -54,6 +57,7 @@ location.reload();
 - **Business system:** Campus food service operations, including administrators, dining staff and Users.
 - **Prevention approach:** Track waste by source, check expiry dates and make safe surplus visible for pickup.
 - **Admin authority:** The Admin can update User profile details and reset User passwords.
+- **Report visibility:** Each Admin waste entry starts private. The Admin controls whether it appears in the User module's **Campus waste** page.
 - **Local Storage keys:** `campusHarvest.users.v1`, `campusHarvest.session.v1`, and `campusHarvest.data.v1`.
 
 ## Demo limitation

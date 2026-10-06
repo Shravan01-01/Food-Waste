@@ -30,9 +30,9 @@
     if (!read(KEYS.data, null)) {
       write(KEYS.data, {
         waste: [
-          { id: uid(), item: 'Cooked rice', category: 'Kitchen surplus', kg: 4.2, location: 'Main Dining Hall', date: today(), source: 'Admin', status: 'Recorded' },
-          { id: uid(), item: 'Vegetable peels', category: 'Preparation scraps', kg: 2.8, location: 'Main Dining Hall', date: today(), source: 'Admin', status: 'Composted' },
-          { id: uid(), item: 'Uneaten lunch', category: 'Plate waste', kg: 3.1, location: 'North Canteen', date: today(), source: 'Admin', status: 'Recorded' }
+          { id: uid(), item: 'Cooked rice', category: 'Kitchen surplus', kg: 4.2, location: 'Main Dining Hall', date: today(), source: 'Admin', status: 'Recorded', showToUsers: false },
+          { id: uid(), item: 'Vegetable peels', category: 'Preparation scraps', kg: 2.8, location: 'Main Dining Hall', date: today(), source: 'Admin', status: 'Composted', showToUsers: false },
+          { id: uid(), item: 'Uneaten lunch', category: 'Plate waste', kg: 3.1, location: 'North Canteen', date: today(), source: 'Admin', status: 'Recorded', showToUsers: false }
         ],
         inventory: [
           { id: uid(), name: 'Fresh tomatoes', quantity: 12, unit: 'kg', expiry: today(), location: 'Kitchen Store' },
@@ -100,9 +100,9 @@
       </main>`;
   }
 
-  const adminNav = [ ['dashboard', '⌂', 'Overview'], ['waste', '◉', 'Waste log'], ['inventory', '▤', 'Inventory'], ['surplus', '✳', 'Surplus food'], ['reports', '▥', 'User reports'], ['users', '♙', 'Manage users'] ];
-  const userNav = [ ['dashboard', '⌂', 'Overview'], ['report', '+', 'Report waste'], ['surplus', '✳', 'Find surplus'], ['my-reports', '▤', 'My reports'] ];
-  const titleFor = route => ({ dashboard: 'Overview', waste: 'Waste log', inventory: 'Inventory', surplus: current()?.role === 'admin' ? 'Surplus food' : 'Find surplus', reports: 'User reports', users: 'Manage users', report: 'Report waste', 'my-reports': 'My reports' }[route] || 'Overview');
+  const adminNav = [ ['dashboard', '⌂', 'Overview'], ['waste', '◉', 'Waste log'], ['inventory', '▤', 'Inventory'], ['surplus', '✳', 'Surplus food'], ['reports', '▥', 'User reports'], ['users', '♙', 'Manage accounts'] ];
+  const userNav = [ ['dashboard', '⌂', 'Overview'], ['report', '+', 'Report waste'], ['shared-waste', '◉', 'Campus waste'], ['surplus', '✳', 'Find surplus'], ['my-reports', '▤', 'My reports'] ];
+  const titleFor = route => ({ dashboard: 'Overview', waste: 'Waste log', inventory: 'Inventory', surplus: current()?.role === 'admin' ? 'Surplus food' : 'Find surplus', reports: 'User reports', users: 'Manage accounts', 'shared-waste': 'Campus waste', report: 'Report waste', 'my-reports': 'My reports' }[route] || 'Overview');
   const navFor = user => user.role === 'admin' ? adminNav : userNav;
 
   function appFrame(route, content) {
@@ -142,21 +142,31 @@
 
   function userDashboard() {
     const data = getData(); const user = current(); const mine = data.reports.filter(r => r.userId === user.id); const available = data.surplus.filter(s => s.status === 'Available');
+    const sharedWaste = data.waste.filter(item => item.showToUsers === true);
     return `<section class="welcome"><div><div class="eyebrow">User workspace</div><h2>Welcome, ${esc(user.name.split(/\s+/)[0])}</h2><p>Help your campus prevent waste and make surplus food easier to find.</p></div><button class="btn btn-primary" data-route="report">+ Report waste</button></section>
-      <section class="stats-grid">${metric('Available surplus', available.length, 'Campus listings ready to view', '✳')}${metric('My reports', mine.length, 'Waste observations submitted', '▤')}${metric('Pickup locations', new Set(available.map(s => s.location)).size, 'Locations with available food', '⌖')}${metric('Campus waste log', `${wasteTotal(data).toFixed(1)} kg`, 'Admin-reported entries', '◉')}</section>
-      <section class="columns"><article class="panel"><div class="panel-head"><div><h3>Food available on campus</h3><p>Check listing details and pickup location</p></div><button class="btn btn-light" data-route="surplus">Browse all</button></div>${surplusCards(available.slice(0, 3))}</article><article class="panel"><div class="panel-head"><div><h3>Get involved</h3><p>Small observations can prevent repeat waste</p></div></div><div class="quick-actions"><button class="quick-action" data-route="report"><span class="qa-icon">＋</span><span><b>Submit a waste report</b><small>Tell the campus team where waste occurs</small></span></button><button class="quick-action" data-route="my-reports"><span class="qa-icon">▤</span><span><b>Follow my reports</b><small>See review status from the admin team</small></span></button></div><div class="callout"><h3>Food safety first</h3><p>Only claim food that appears in an active listing. Follow the posted pickup time and campus food handling guidance.</p></div></article></section>`;
+      <section class="stats-grid">${metric('Available surplus', available.length, 'Campus listings ready to view', '✳')}${metric('My reports', mine.length, 'Waste observations submitted', '▤')}${metric('Pickup locations', new Set(available.map(s => s.location)).size, 'Locations with available food', '⌖')}${metric('Shared waste entries', sharedWaste.length, 'Approved by the Admin', '◉')}</section>
+      <section class="columns"><article class="panel"><div class="panel-head"><div><h3>Food available on campus</h3><p>Check listing details and pickup location</p></div><button class="btn btn-light" data-route="surplus">Browse all</button></div>${surplusCards(available.slice(0, 3))}</article><article class="panel"><div class="panel-head"><div><h3>Get involved</h3><p>Small observations can prevent repeat waste</p></div></div><div class="quick-actions"><button class="quick-action" data-route="report"><span class="qa-icon">＋</span><span><b>Submit a waste report</b><small>Tell the campus team where waste occurs</small></span></button><button class="quick-action" data-route="my-reports"><span class="qa-icon">▤</span><span><b>Follow my reports</b><small>See review status from the admin team</small></span></button><button class="quick-action" data-route="shared-waste"><span class="qa-icon">◉</span><span><b>View shared campus waste</b><small>See entries the Admin approved for Users</small></span></button></div><div class="callout"><h3>Food safety first</h3><p>Only claim food that appears in an active listing. Follow the posted pickup time and campus food handling guidance.</p></div></article></section>`;
   }
 
   function wastePage() {
     const data = getData();
-    return `<section class="welcome"><div><div class="eyebrow">Measurement</div><h2>Campus waste log</h2><p>Record discard by type and dining location to find preventable losses.</p></div></section><section class="section-grid"><article class="panel"><div class="panel-head"><div><h3>Recorded entries</h3><p>${data.waste.length} records · ${wasteTotal(data).toFixed(1)} kg total</p></div></div>${wasteTable(data.waste)}</article><article class="panel"><div class="panel-head"><div><h3>Add a waste entry</h3><p>Use measured weight when available</p></div></div>${wasteForm()}<div class="callout"><h3>Record consistently</h3><p>Use the same weighing method and location names each day. Consistent records make week-to-week comparisons more useful.</p></div></article></section>`;
+    return `<section class="welcome"><div><div class="eyebrow">Measurement</div><h2>Campus waste log</h2><p>Record discard by type and dining location to find preventable losses.</p></div></section><section class="section-grid"><article class="panel"><div class="panel-head"><div><h3>Recorded entries</h3><p>${data.waste.length} records · ${wasteTotal(data).toFixed(1)} kg total · ${data.waste.filter(item => item.showToUsers === true).length} shared with Users</p></div></div>${wasteTable(data.waste)}</article><article class="panel"><div class="panel-head"><div><h3>Add a waste entry</h3><p>New entries stay private unless you choose to share</p></div></div>${wasteForm()}<div class="callout"><h3>Record consistently</h3><p>Use the same weighing method and location names each day. Consistent records make week-to-week comparisons more useful.</p></div></article></section>`;
   }
   function wasteTable(items) {
     if (!items.length) return `<div class="empty-state">No waste entries have been recorded.</div>`;
-    return `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Item</th><th>Type</th><th>Location</th><th>Weight</th><th>Status</th></tr></thead><tbody>${[...items].reverse().map(x => `<tr><td>${formatDate(x.date)}</td><td><strong>${esc(x.item)}</strong></td><td>${esc(x.category)}</td><td>${esc(x.location)}</td><td>${Number(x.kg).toFixed(1)} kg</td><td><span class="badge ${x.status === 'Composted' ? '' : 'amber'}">${esc(x.status)}</span></td></tr>`).join('')}</tbody></table></div>`;
+    return `<div class="table-wrap waste-table"><table><thead><tr><th>Date</th><th>Item</th><th>Type</th><th>Location</th><th>Weight</th><th>Status</th><th>User visibility</th></tr></thead><tbody>${[...items].reverse().map(x => `<tr><td>${formatDate(x.date)}</td><td><strong>${esc(x.item)}</strong></td><td>${esc(x.category)}</td><td>${esc(x.location)}</td><td>${Number(x.kg).toFixed(1)} kg</td><td><span class="badge ${x.status === 'Composted' ? '' : 'amber'}">${esc(x.status)}</span></td><td><span class="badge ${x.showToUsers === true ? '' : 'amber'}">${x.showToUsers === true ? 'Shared' : 'Private'}</span><button class="btn btn-light visibility-button" data-action="toggle-waste-visibility" data-id="${x.id}">${x.showToUsers === true ? 'Hide from Users' : 'Share with Users'}</button></td></tr>`).join('')}</tbody></table></div>`;
   }
   function wasteForm() {
-    return `<form data-form="waste"><div class="field"><label>Food item</label><input name="item" placeholder="e.g. Cooked rice" required maxlength="60"></div><div class="form-row"><div class="field"><label>Waste type</label><select name="category"><option>Kitchen surplus</option><option>Preparation scraps</option><option>Plate waste</option><option>Spoiled food</option></select></div><div class="field"><label>Weight (kg)</label><input name="kg" type="number" min="0.1" max="10000" step="0.1" placeholder="0.0" required></div></div><div class="field"><label>Dining location</label><input name="location" placeholder="e.g. Main Dining Hall" required maxlength="60"></div><div class="field"><label>Date</label><input name="date" type="date" value="${today()}" required></div><button class="btn btn-primary btn-block">Save waste entry</button></form>`;
+    return `<form data-form="waste"><div class="field"><label>Food item</label><input name="item" placeholder="e.g. Cooked rice" required maxlength="60"></div><div class="form-row"><div class="field"><label>Waste type</label><select name="category"><option>Kitchen surplus</option><option>Preparation scraps</option><option>Plate waste</option><option>Spoiled food</option></select></div><div class="field"><label>Weight (kg)</label><input name="kg" type="number" min="0.1" max="10000" step="0.1" placeholder="0.0" required></div></div><div class="field"><label>Dining location</label><input name="location" placeholder="e.g. Main Dining Hall" required maxlength="60"></div><div class="field"><label>Date</label><input name="date" type="date" value="${today()}" required></div><label class="share-choice"><input name="showToUsers" type="checkbox"><span><strong>Share this report with Users</strong><small>Leave unchecked to keep this entry private. You can change this later.</small></span></label><button class="btn btn-primary btn-block">Save waste entry</button></form>`;
+  }
+
+  function sharedWastePage() {
+    const items = getData().waste.filter(item => item.showToUsers === true);
+    return `<section class="welcome"><div><div class="eyebrow">Admin-approved entries</div><h2>Campus waste reports</h2><p>Only entries the Admin has chosen to share appear here.</p></div></section><section class="panel"><div class="panel-head"><div><h3>Shared with Users</h3><p>${items.length} approved report${items.length === 1 ? '' : 's'}</p></div></div>${sharedWasteTable(items)}</section>`;
+  }
+  function sharedWasteTable(items) {
+    if (!items.length) return `<div class="empty-state">The Admin has not shared any waste reports yet.</div>`;
+    return `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Food item</th><th>Type</th><th>Location</th><th>Weight</th><th>Recorded by</th></tr></thead><tbody>${[...items].reverse().map(item => `<tr><td>${formatDate(item.date)}</td><td><strong>${esc(item.item)}</strong></td><td>${esc(item.category)}</td><td>${esc(item.location)}</td><td>${Number(item.kg).toFixed(1)} kg</td><td>${esc(item.source || 'Admin')}</td></tr>`).join('')}</tbody></table></div>`;
   }
 
   function inventoryPage() {
@@ -209,10 +219,16 @@
 
   function usersPage(editId = '') {
     const users = getUsers().filter(user => user.role === 'user');
+    const admins = getUsers().filter(user => user.role === 'admin');
     const selected = users.find(user => user.id === editId);
     const rows = users.length ? `<div class="table-wrap"><table><thead><tr><th>User</th><th>Email</th><th>Account area</th><th>Action</th></tr></thead><tbody>${users.map(user => `<tr><td><strong>${esc(user.name)}</strong></td><td>${esc(user.email)}</td><td><span class="badge user">User</span></td><td><button class="btn btn-light" data-route="users/${user.id}">Edit account</button></td></tr>`).join('')}</tbody></table></div>` : `<div class="empty-state">No User accounts yet. New signups will appear here.</div>`;
     const editor = selected ? `<form data-form="user" data-id="${selected.id}"><div class="field"><label>User name</label><input name="name" value="${esc(selected.name)}" maxlength="60" required></div><div class="field"><label>Email address</label><input name="email" type="email" value="${esc(selected.email)}" required></div><div class="field"><label>Set a new password</label><input name="password" type="password" minlength="6" placeholder="Leave blank to keep current password"></div><div class="form-hint">Only the Admin can edit User account details or reset a User password.</div><button class="btn btn-primary btn-block">Save account changes</button><button class="btn btn-light btn-block" type="button" data-route="users">Cancel</button></form>` : `<div class="empty-state">Choose a User account to edit their name, email or password.</div>`;
-    return `<section class="welcome"><div><div class="eyebrow">Account administration</div><h2>Manage user accounts</h2><p>Review user registrations and update account details when needed.</p></div></section><section class="section-grid"><article class="panel"><div class="panel-head"><div><h3>User accounts</h3><p>${users.length} account${users.length === 1 ? '' : 's'} · Admin-only access</p></div></div>${rows}</article><aside class="panel"><div class="panel-head"><div><h3>${selected ? 'Edit user account' : 'Account controls'}</h3><p>${selected ? esc(selected.name) : 'Select an account to make changes'}</p></div></div>${editor}</aside></section>`;
+    const adminRows = admins.map(admin => `<tr><td><strong>${esc(admin.name)}</strong></td><td>${esc(admin.email)}</td><td><span class="badge admin">Admin</span></td></tr>`).join('');
+    return `<section class="welcome"><div><div class="eyebrow">Account administration</div><h2>Manage accounts</h2><p>Review User registrations, update account details and create additional Admin accounts.</p></div></section><section class="section-grid"><article class="panel"><div class="panel-head"><div><h3>User accounts</h3><p>${users.length} account${users.length === 1 ? '' : 's'} · Admin-only access</p></div></div>${rows}</article><aside class="panel"><div class="panel-head"><div><h3>${selected ? 'Edit User account' : 'User controls'}</h3><p>${selected ? esc(selected.name) : 'Select a User account to make changes'}</p></div></div>${editor}</aside></section><section class="section-grid account-admin-grid"><article class="panel"><div class="panel-head"><div><h3>Admin accounts</h3><p>${admins.length} administrator${admins.length === 1 ? '' : 's'}</p></div></div><div class="table-wrap"><table><thead><tr><th>Admin</th><th>Email</th><th>Role</th></tr></thead><tbody>${adminRows}</tbody></table></div></article><aside class="panel"><div class="panel-head"><div><h3>Create an Admin account</h3><p>Only signed-in Admins can add another administrator.</p></div></div>${adminAccountForm()}</aside></section>`;
+  }
+
+  function adminAccountForm() {
+    return `<form data-form="admin-account"><div class="field"><label>Admin name</label><input name="name" placeholder="e.g. Campus Administrator" maxlength="60" required></div><div class="field"><label>Email</label><input name="email" type="email" placeholder="name@gmail.com" required></div><div class="field"><label>Temporary password</label><input name="password" type="password" minlength="6" placeholder="At least 6 characters" required></div><button class="btn btn-primary btn-block">Create Admin account</button></form>`;
   }
 
   function render() {
@@ -223,7 +239,7 @@
     let route = routeParts[0] || 'dashboard';
     const allowed = navFor(user).map(x => x[0]);
     if (!allowed.includes(route)) route = 'dashboard';
-    const content = user.role === 'admin' ? ({ dashboard: adminDashboard, waste: wastePage, inventory: inventoryPage, surplus: surplusPage, reports: () => reportsPage(false), users: () => usersPage(routeParts[1] || '') }[route] || adminDashboard)() : ({ dashboard: userDashboard, report: reportPage, surplus: surplusPage, 'my-reports': () => reportsPage(true) }[route] || userDashboard)();
+    const content = user.role === 'admin' ? ({ dashboard: adminDashboard, waste: wastePage, inventory: inventoryPage, surplus: surplusPage, reports: () => reportsPage(false), users: () => usersPage(routeParts[1] || '') }[route] || adminDashboard)() : ({ dashboard: userDashboard, report: reportPage, surplus: surplusPage, 'shared-waste': sharedWastePage, 'my-reports': () => reportsPage(true) }[route] || userDashboard)();
     appFrame(route, content);
   }
 
@@ -263,7 +279,7 @@
     const v = Object.fromEntries(new FormData(form).entries()); const data = getData();
     if (form.dataset.form === 'waste') {
       if (!v.item.trim() || !v.location.trim() || Number(v.kg) <= 0) return setNotice(form, 'Enter an item, a campus location and a weight above zero.');
-      data.waste.push({ id: uid(), item: v.item.trim(), category: v.category, kg: Number(v.kg), location: v.location.trim(), date: v.date, source: current().name, status: v.category === 'Preparation scraps' ? 'Composted' : 'Recorded' });
+      data.waste.push({ id: uid(), item: v.item.trim(), category: v.category, kg: Number(v.kg), location: v.location.trim(), date: v.date, source: current().name, status: v.category === 'Preparation scraps' ? 'Composted' : 'Recorded', showToUsers: v.showToUsers === 'on' });
       saveData(data); toast('Waste entry saved.'); render();
     } else if (form.dataset.form === 'inventory') {
       data.inventory.push({ id: uid(), name: v.name.trim(), quantity: Number(v.quantity), unit: v.unit, location: v.location.trim(), expiry: v.expiry });
@@ -276,6 +292,7 @@
       data.reports.push({ id: uid(), userId: current().id, userName: current().name, item: v.item.trim(), location: v.location, category: v.category, details: v.details.trim(), date: today(), status: 'New' });
       saveData(data); toast('Your report has been sent to the campus team.'); location.hash = '#my-reports'; render();
     } else if (form.dataset.form === 'user') {
+      if (current()?.role !== 'admin') return setNotice(form, 'Only an Admin can edit User accounts.');
       const users = getUsers(); const account = users.find(entry => entry.id === form.dataset.id && entry.role === 'user');
       if (!account) return setNotice(form, 'That User account could not be found.');
       const email = v.email.trim().toLowerCase();
@@ -286,6 +303,15 @@
       account.name = v.name.trim(); account.email = email;
       if (v.password) account.password = v.password;
       write(KEYS.users, users); toast('User account updated.'); location.hash = '#users'; render();
+    } else if (form.dataset.form === 'admin-account') {
+      if (current()?.role !== 'admin') return setNotice(form, 'Only an Admin can create another Admin account.');
+      const users = getUsers(); const name = v.name.trim(); const email = v.email.trim().toLowerCase();
+      if (name.length < 2) return setNotice(form, 'Enter an Admin name with at least two characters.');
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return setNotice(form, 'Enter a valid email address.');
+      if (users.some(entry => entry.email.toLowerCase() === email)) return setNotice(form, 'An account already uses this email address.');
+      if (v.password.length < 6) return setNotice(form, 'Choose a temporary password with at least 6 characters.');
+      users.push({ id: uid(), name, email, password: v.password, role: 'admin' });
+      write(KEYS.users, users); toast('Admin account created.'); render();
     }
   }
 
@@ -312,6 +338,13 @@
       else toast('You already requested this listing.');
     }
     if (action === 'review-report') { const data = getData(); const report = data.reports.find(x => x.id === actionEl.dataset.id); if (report) report.status = 'Reviewed'; saveData(data); toast('Report marked as reviewed.'); render(); }
+    if (action === 'toggle-waste-visibility') {
+      if (current()?.role !== 'admin') return toast('Only an Admin can change report visibility.');
+      const data = getData(); const report = data.waste.find(item => item.id === actionEl.dataset.id);
+      if (!report) return toast('This waste entry could not be found.');
+      report.showToUsers = report.showToUsers !== true;
+      saveData(data); toast(report.showToUsers ? 'Waste report shared with Users.' : 'Waste report hidden from Users.'); render();
+    }
   });
   window.addEventListener('hashchange', render);
   initialize(); render();

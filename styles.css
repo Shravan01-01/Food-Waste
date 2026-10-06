@@ -102,6 +102,7 @@ h1, h2, h3, p { margin-top: 0; }
 .activity-amount { font-weight: 800; color: var(--forest); font-size: 14px; white-space: nowrap; }
 .badge { display: inline-flex; align-items: center; border-radius: 999px; padding: 5px 9px; background: #e8f8ef; color: #236c50; font-weight: 750; font-size: 11px; }
 .badge.user { background: #f3eafa; color: #65339a; }
+.badge.admin { background: #fff1d5; color: #76501b; }
 .badge.amber { background: #fbefdf; color: #8c5b23; }
 .badge.red { background: #fae9e6; color: #982f29; }
 .quick-actions { display: grid; gap: 10px; }
@@ -119,6 +120,13 @@ td strong { color: var(--forest); }
 .empty-state { padding: 28px 12px; color: var(--muted); text-align: center; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; }
 .form-hint { color: var(--muted); font-size: 12px; margin: -6px 0 12px; }
+.share-choice { display: flex; align-items: flex-start; gap: 10px; margin: 16px 0 10px; padding: 12px; border: 1px solid var(--line); border-radius: 11px; background: #fff9fc; cursor: pointer; }
+.share-choice input { width: 17px; height: 17px; margin: 2px 0 0; accent-color: var(--green); flex: 0 0 auto; }
+.share-choice strong, .share-choice small { display: block; }
+.share-choice strong { font-size: 13px; }
+.share-choice small { margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.waste-table table { min-width: 940px; }
+.visibility-button { display: block; margin-top: 7px; padding: 7px 9px; white-space: nowrap; font-size: 11px; }
 .callout { background: linear-gradient(130deg, #48217d, #8648b4); color: white; padding: 22px; border-radius: 16px; margin-top: 18px; }
 .callout h3 { color: var(--leaf); margin-bottom: 8px; }
 .callout p { color: #dce9df; line-height: 1.6; margin: 0; font-size: 14px; }
